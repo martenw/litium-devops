@@ -48,6 +48,15 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+
+# Task that rename a file called Web.template.config into Web.config in the MVC site directory, enable if needed
+# - task: CmdLine@2
+#   inputs:
+#     script: |
+#       cd src\Litium.Accelerator.Mvc
+#       rename Web.template.config Web.config
+#     workingDirectory: $(Build.SourcesDirectory)
+
 - task: NuGetToolInstaller@0
 
 - task: NuGetCommand@2
@@ -87,22 +96,30 @@ steps:
 1. In devops select *Pipelines > Releases > New > New release pipeline*
 1. Select to start with an *Empty job*
 1. For artifact select the *LitiumBuildArtifact* created in the build
+1. For _Default version_ set _Latest_
+1. For _Source alias_ set _Litium.Build.Source.Alias_
 1. Optionally click the lightning-symbol on artifacts to also enable automated deploy on build
 
 ### Add deploy tasks:
 
 First a *Config transformation*-task to set the proper database connectionstring:
     
-1. Set path to: `$(System.DefaultWorkingDirectory)/_Litium.Workshop.BestPractice/LitiumBuildArtifact/Web.config`
+1. Set path to: `$(System.DefaultWorkingDirectory)/Litium.Build.Source.Alias/LitiumBuildArtifact/Web.config`
 1. Set **File type** to *Auto detect*
 1. Set **Target** to *source file*
 1. Set **Type** to *Inline JSON*
 1. Adjust the snippet below to your connectionstring and copy the value to the **Transformations**-field:
-   ```
+   ```JSON
    {
        "configuration/connectionStrings/add[@name='FoundationConnectionString']/@connectionString": "Pooling=true;Database=TODO;Server=TODO;Integrated security=true;MultipleActiveResultSets=True"
     }
    ```
+1. You can add other transformations in the same task or in a different one, for example to set value for a `appSetting`:
+    ```JSON
+    {
+      "configuration/appSettings/add[@key='MySetting']/@value": "my-setting-value"      
+    }
+    ```
 
 Next add a *SFTP Upload* task (the task can be found on [marketplace](https://marketplace.visualstudio.com/items?itemName=jean-marc-ducasse.sftpupload)):
 
