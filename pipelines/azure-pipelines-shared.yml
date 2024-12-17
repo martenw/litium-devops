@@ -1,0 +1,109 @@
+steps:
+  - task: DotNetCoreCLI@2
+    displayName: Add nuget source file
+    inputs:
+      command: "custom"
+      custom: "new"
+      arguments: "nugetconfig"
+
+  - task: DotNetCoreCLI@2
+    displayName: Add Litium nuget source
+    inputs:
+      command: "custom"
+      custom: "nuget"
+      arguments: "add source https://nuget.litium.com/nuget/ --name Litium"
+
+  - task: NuGetAuthenticate@1
+    displayName: "Authenticate to NuGet feeds"
+    inputs:
+      nuGetServiceConnections: "Litium"
+      forceReinstallCredentialProvider: true
+
+  - task: DotNetCoreCLI@2
+    displayName: Clear nuget http cache
+    inputs:
+      command: "custom"
+      custom: "nuget"
+      arguments: "locals -c http-cache"
+
+  - task: DotNetCoreCLI@2
+    displayName: Restore packages
+    inputs:
+      command: "restore"
+      projects: "*.sln"
+      feedsToUse: "config"
+      nugetConfigPath: "nuget.config"
+      verbosityRestore: minimal
+      externalFeedCredentials: "Litium"
+      workingDirectory: "$(Build.SourcesDirectory)"
+
+  # Fix for: 
+  # error litium-ui@8.18.6: The engine "node" is incompatible with this module. 
+  # Expected version "20". Got "18.16.0"
+  - task: UseNode@1
+    displayName: "Set node version 20"
+    inputs:
+      version: "20.x"
+
+  - pwsh: |
+      yarn install
+      yarn run prod
+    displayName: "Yarn dir 'Src/'"
+    workingDirectory: "Src/"
+
+  - pwsh: |
+      yarn install
+      yarn run prod
+    displayName: "Yarn dir 'Src/Litium.Accelerator.Mvc'"
+    workingDirectory: "Src/Litium.Accelerator.Mvc"
+
+  - task: DotNetCoreCLI@2
+    displayName: Build
+    inputs:
+      command: "build"
+      projects: "*.sln"
+      arguments: "-c Release --no-restore"
+      workingDirectory: "$(Build.SourcesDirectory)"
+
+  - task: DotNetCoreCLI@2
+    displayName: Publish
+    inputs:
+      command: "publish"
+      projects: "*.sln"
+      externalFeedCredentials: "Litium"
+      arguments: "-c Release --no-build --no-restore -o builds/publish"
+      workingDirectory: "$(Build.SourcesDirectory)"
+      zipAfterPublish: false
+
+  - task: PublishBuildArtifacts@1
+    displayName: "Publish webapp artifact"
+    inputs:
+      PathtoPublish: "$(Build.SourcesDirectory)/builds/publish"
+      ArtifactName: LitiumBuildArtifact
+
+  - task: DotNetCoreCLI@2
+    displayName: "Install litium.cloud.cli tool"
+    inputs:
+      command: custom
+      custom: tool
+      arguments: "update -g litium.cloud.cli --no-cache"
+
+  - task: DownloadSecureFile@1
+    name: cert
+    displayName: "Download secure file"
+    inputs:
+      # https://docs.litium.com/cloud/serverless/guides/service-principal
+      # Add the .pem-file in devops > pipelines > library > secure files
+      secureFile: $(LitiumServicePrincipal)
+
+  - pwsh: ./azure-pipelines-shared.ps1
+    workingDirectory: ./pipelines
+    displayName: "Authenticate, upload artifact and deploy"
+    env:
+      # Pass variables to powershell script
+      BuildSourcesDirectory: $(Build.SourcesDirectory)
+      CertSecureFilePath: $(cert.secureFilePath)
+      LitiumApp: $(LitiumApp)
+      LitiumCloudUser: $(LitiumCloudUser)
+      LitiumCloudEnvironment: $(LitiumCloudEnvironment)
+      LitiumCloudSubscription: $(LitiumCloudSubscription)

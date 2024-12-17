@@ -1,0 +1,12 @@
+trigger:
+  - main
+
+pool:
+  vmImage: "ubuntu-latest"
+
+variables:
+  # Variables are defined in variable group LitiumProd in devops.
+  - group: LitiumProd
+
+steps:
+  - template: azure-pipelines-shared.yml
