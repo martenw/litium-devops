@@ -2,7 +2,7 @@
 
 Instructions on how to automatically build and deploy a Litium 8 Accelerator website to Litium Serverless Cloud.
 
-> The old Litium 7 version can be found in the `litium-7` branch
+> The old Litium 7 version can be found in the `litium-7` branch)
 
 Setup is based on:
 
@@ -13,7 +13,7 @@ This setup is prepared for two deployments, one to a dev-environment and one to 
 
 ## Add files to repo
 
-Add the `/pipelines`-folder to your repo root and push the change.
+Add the `/pipelines`-folder to your repo root and push the change. Folder name is case-sensitive, if you change the name you must edit _workingDirectory_ in step _Authenticate, upload artifact and deploy_ to match.
 
 ## Setup in Azure devops
 
