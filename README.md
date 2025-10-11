@@ -25,7 +25,7 @@ Create a _Service Connection_ to access the Litium nuget feed.
 
 1. In devops, select _Project Settings > Service connections_ and click on _New Service Connection_.
 1. Set **Connection name** to _Litium_ (name is used in YAML-build step later)
-1. Set **Feed URL** to `https://nuget.litium.com/nuget`
+1. Set **Feed URL** to `https://nuget.litium.com/nuget/`
 1. Set username and password to your Litium docs login
 
 Additional info can be found here: <https://docs.litium.com/platform/guides/deployment/azure-devops-and-webdeploy>
