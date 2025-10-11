@@ -5,8 +5,8 @@ pool:
   vmImage: "ubuntu-latest"
 
 variables:
-  # Variables are defined in variable group LitiumDev in devops.
-  - group: LitiumDev
+  # Variables are defined in variable group LitiumTest in devops.
+  - group: LitiumTest
 
 steps:
   - template: azure-pipelines-shared.yml
