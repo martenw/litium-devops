@@ -37,8 +37,8 @@ steps:
       externalFeedCredentials: "Litium"
       workingDirectory: "$(Build.SourcesDirectory)"
 
-  # Fix for: 
-  # error litium-ui@8.18.6: The engine "node" is incompatible with this module. 
+  # Fix for:
+  # error litium-ui@8.18.6: The engine "node" is incompatible with this module.
   # Expected version "20". Got "18.16.0"
   - task: UseNode@1
     displayName: "Set node version 20"
@@ -103,7 +103,7 @@ steps:
       secureFile: $(LitiumServicePrincipal)
 
   - pwsh: ./azure-pipelines-shared.ps1
-    workingDirectory: ./pipelines
+    workingDirectory: ./Pipelines
     displayName: "Authenticate, upload artifact and deploy"
     env:
       # Pass variables to powershell script
