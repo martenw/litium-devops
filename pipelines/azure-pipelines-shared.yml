@@ -57,6 +57,12 @@ steps:
     displayName: "Yarn dir 'Src/Litium.Accelerator.Mvc'"
     workingDirectory: "Src/Litium.Accelerator.Mvc"
 
+  - pwsh: |
+      yarn install
+      yarn run prod
+    displayName: "Yarn dir 'Src/Litium.Accelerator.Email'"
+    workingDirectory: "Src/Litium.Accelerator.Email"
+
   - task: DotNetCoreCLI@2
     displayName: Build
     inputs:
